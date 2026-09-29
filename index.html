@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>캐릭터 AR</title>
+<link rel="stylesheet" href="src/style.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+    "@huggingface/transformers": "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/dist/transformers.min.js"
+  }
+}
+</script>
+</head>
+<body>
+  <div id="app">
+    <!-- 1) 업로드 & 미리보기 화면 -->
+    <section id="setup-screen" class="screen active">
+      <header>
+        <h1>캐릭터 AR</h1>
+        <p>제미나이 등으로 만든 3D 캐릭터 이미지를 올리면 배경은 지우고 캐릭터만 입체로 만들어, 내 공간에 AR로 놓아볼 수 있어요.</p>
+      </header>
+
+      <div id="browserTip" class="browser-tip" hidden>
+        <p id="browserTipText">삼성 인터넷에서는 AR 사진 촬영(📸)이 지원되지 않아요.<br />사진을 찍으려면 Chrome에서 열어주세요.</p>
+        <a class="chrome-link">Chrome으로 열기</a>
+        <p id="browserTipFallback" class="tip-fallback" hidden>버튼을 눌러도 안 열리면, 화면의 메뉴(⋮ 또는 ⋯)에서 '다른 브라우저로 열기'를 눌러주세요.</p>
+      </div>
+
+      <div class="upload-box" id="uploadBox">
+        <input type="file" id="fileInput" accept="image/*" hidden />
+        <div id="uploadPlaceholder">
+          <span class="icon">🧸</span>
+          <p>탭해서 캐릭터 이미지 선택</p>
+        </div>
+        <img id="previewImg" hidden />
+      </div>
+
+      <div class="controls-row">
+        <label for="depthSlider">두께</label>
+        <input type="range" id="depthSlider" min="0" max="100" value="55" />
+      </div>
+
+      <button id="convertBtn" class="primary-btn" disabled>3D로 변환하기</button>
+      <p id="statusText" class="status-text"></p>
+
+      <div id="previewWrap" hidden>
+        <h2 class="section-title">오려낸 모양</h2>
+        <p class="hint">배경이 남아 있거나 캐릭터 일부가 빠졌으면 그 부분을 탭하세요.<br />지워진 부분은 분홍색으로 보이고, 탭하면 되살아나요.</p>
+        <canvas id="cutoutCanvas"></canvas>
+
+        <h2 class="section-title">3D 미리보기</h2>
+        <canvas id="previewCanvas"></canvas>
+        <p class="hint">손가락/마우스로 드래그하면 회전해서 확인할 수 있어요</p>
+        <button id="goArBtn" class="primary-btn" disabled>AR로 내 공간에 놓기</button>
+        <p id="arSupportText" class="status-text"></p>
+      </div>
+    </section>
+
+    <!-- 2) AR 화면 -->
+    <section id="ar-screen" class="screen">
+      <div id="ar-overlay">
+        <p id="arHint" class="ar-hint">바닥이나 벽을 비추면 원이 나타나요. 탭해서 놓으세요.</p>
+        <div id="modeToggle" class="ar-ui mode-toggle" hidden>
+          <button data-mode="move" class="active">✋ 이동</button>
+          <button data-mode="rotate">🔄 회전</button>
+        </div>
+        <div id="arControls" hidden>
+          <button id="captureBtn" title="캡처">📸</button>
+          <button id="resetBtn" title="다시 놓기">↺</button>
+          <button id="exitArBtn" title="종료">✕</button>
+        </div>
+        <p id="arToast" class="ar-ui ar-toast" hidden></p>
+        <div id="shutterFlash" class="shutter-flash"></div>
+        <button id="shotThumb" class="ar-ui shot-thumb" title="방금 찍은 사진" hidden>
+          <img id="shotThumbImg" alt="방금 찍은 사진" />
+        </button>
+        <div id="captureSheet" class="ar-ui capture-sheet" hidden>
+          <img id="captureImg" alt="AR 캡처 사진" />
+          <p class="sheet-note">✓ 휴대폰에 저장된 사진이에요</p>
+          <div class="sheet-actions">
+            <button id="shareShotBtn" class="sheet-primary">공유</button>
+            <button id="closeShotBtn">닫기</button>
+          </div>
+        </div>
+        <div id="noCapturePanel" class="ar-ui no-capture" hidden>
+          <p id="noCaptureText"></p>
+          <div class="panel-actions">
+            <a class="chrome-link panel-primary">Chrome으로 열기</a>
+            <button id="cleanShotBtn">버튼 숨기고 직접 캡처</button>
+            <button id="noCaptureCloseBtn">닫기</button>
+          </div>
+          <p id="noCaptureCode" class="panel-code"></p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

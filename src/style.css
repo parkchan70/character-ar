@@ -1,0 +1,318 @@
+:root {
+  color-scheme: dark;
+  --bg: #0e0f13;
+  --card: #17181f;
+  --accent: #6d8cff;
+  --text: #f2f3f7;
+  --muted: #9497a6;
+}
+
+* { box-sizing: border-box; }
+
+/* Elements styled with display:flex would otherwise ignore the hidden attribute. */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overscroll-behavior: none;
+}
+
+#app { width: 100%; height: 100%; }
+
+.screen {
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+.screen.active { display: block; }
+
+#setup-screen {
+  overflow-y: auto;
+  padding: 24px 20px 60px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+header h1 { margin: 0 0 4px; font-size: 24px; }
+header p { margin: 0 0 20px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+.upload-box {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--card);
+  border: 2px dashed #33354a;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+.upload-box img { width: 100%; height: 100%; object-fit: contain; background: #000; }
+#uploadPlaceholder { text-align: center; color: var(--muted); }
+#uploadPlaceholder .icon { font-size: 40px; display: block; margin-bottom: 8px; }
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.controls-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+
+.primary-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.primary-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.status-text {
+  min-height: 18px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  margin: 10px 0 0;
+}
+
+#previewWrap { margin-top: 20px; }
+.section-title { font-size: 16px; margin: 22px 0 4px; }
+#cutoutCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+#previewCanvas {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  background: #000;
+  touch-action: none;
+}
+.hint { font-size: 12px; color: var(--muted); text-align: center; margin: 8px 0; }
+
+/* AR screen */
+#ar-screen canvas.xr-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+#ar-overlay {
+  position: fixed;
+  inset: 0;
+  /* auto (not none): the overlay itself must receive touches so ARScene can
+     read 1-finger drag / 2-finger rotate+pinch gestures for the placed model. */
+  pointer-events: auto;
+  touch-action: none; /* our gestures, not browser pan/zoom */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px);
+}
+
+.ar-hint {
+  align-self: center;
+  margin-top: 16px;
+  background: rgba(0,0,0,0.55);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+.mode-toggle {
+  align-self: center;
+  margin-top: auto;
+  display: flex;
+  background: rgba(0,0,0,0.5);
+  border-radius: 24px;
+  padding: 4px;
+  gap: 4px;
+}
+.mode-toggle button {
+  border: none;
+  border-radius: 20px;
+  padding: 10px 18px;
+  background: transparent;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+.mode-toggle button.active { background: var(--accent); }
+
+#arControls {
+  pointer-events: auto;
+  align-self: center;
+  margin-top: 10px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 18px;
+  background: rgba(0,0,0,0.45);
+  padding: 10px 16px;
+  border-radius: 30px;
+}
+#arControls button {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+#arControls button:active { background: rgba(255,255,255,0.35); }
+#arControls button:disabled { opacity: 0.4; }
+
+.ar-toast {
+  pointer-events: none;
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 160px);
+  margin: 0;
+  background: rgba(0,0,0,0.75);
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.capture-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px 16px;
+}
+.capture-sheet img {
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+.sheet-note { margin: 0; font-size: 14px; color: #b9f5c8; }
+.sheet-actions { display: flex; gap: 10px; }
+
+.shutter-flash {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+.shutter-flash.go { animation: shutter 0.35s ease-out; }
+@keyframes shutter { from { opacity: 0.85; } to { opacity: 0; } }
+
+.shot-thumb {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 68px); /* below the placement hint */
+  left: 16px;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 3px solid #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+}
+.shot-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.shot-thumb.pop { animation: thumbpop 0.45s ease-out; }
+@keyframes thumbpop {
+  0% { transform: scale(2.2); opacity: 0; }
+  60% { transform: scale(0.92); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.browser-tip {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #3a2f12;
+  border: 1px solid #7a6320;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.browser-tip p { margin: 0 0 10px; }
+.browser-tip .tip-fallback { margin: 10px 0 0; font-size: 12px; color: #d8c690; }
+.chrome-link {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.no-capture {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 150px);
+  z-index: 10;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(20, 21, 28, 0.94);
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+}
+.no-capture p { margin: 0 0 12px; }
+.panel-actions { display: flex; flex-direction: column; gap: 8px; }
+.panel-actions button, .panel-actions a {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+}
+.panel-actions .panel-primary { background: var(--accent); }
+.no-capture .panel-code { margin: 10px 0 0; font-size: 11px; color: var(--muted); }
+
+/* Screenshot mode: hide every overlay control so the phone's own capture is clean. */
+#ar-overlay.clean > * { visibility: hidden; }
+
+.ar-toast.success { background: rgba(22, 128, 61, 0.92); font-size: 15px; font-weight: 600; }
+.sheet-actions button {
+  min-width: 84px;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+.sheet-actions .sheet-primary { background: var(--accent); }
